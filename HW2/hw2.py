@@ -21,6 +21,14 @@ image_groups = ['bikes1.png', 'bikes2.png']
 for x, y in pairwise(image_groups):
 	image1 = cv2.imread(x)
 	image2 = cv2.imread(y)
+	rows1, columns1 = image1.shape[:2]
+	rows2, columns2 = image2.shape[:2]
 	features1 = detect_features(image1)
 	features2 = detect_features(image2)
 	matches = match_features(features1, features2, image1, image2)
+	#print(np.shape(matches))
+	affine_xform = compute_affine_xform(matches,features1, features2, image1, image2)
+	affine_xform = np.delete(affine_xform, (2), axis=0)
+	warp1 = cv2.warpAffine(image1, affine_xform, (columns1, rows1))
+	warp2 = cv2.warpAffine(image1, affine_xform, (columns2, rows2))
+	

@@ -19,8 +19,39 @@ def match_features(feature_coords1,feature_coords2,image1,image2):
     ncc_descriptor2 = ncc_descriptor(image2, feature_coords2)
     num_descriptors1 = np.shape(ncc_descriptor1)[2]
     num_descriptors2 = np.shape(ncc_descriptor2)[2]
-    print(num_descriptors1)
-    print(num_descriptors2)
+    potential_match = np.array([])
+
+    for x in range(0, num_descriptors1):
+        index = -1
+        max_dist = -1
+        for y in range(0, num_descriptors2):
+            ncc = compute_ncc(ncc_descriptor1, ncc_descriptor2, x, y)
+            if ncc > max_dist:
+                max_dist = ncc
+                index = y
+        if index > -1:
+            match = [x, index]
+            potential_match = np.append(potential_match, match)
+    for x in range(0, num_descriptors2):
+        index = -1
+        max_dist = -1    
+        for y in range(0, num_descriptors1):
+            ncc = compute_ncc(ncc_descriptor1, ncc_descriptor2, y, x)
+            if ncc > max_dist:
+                max_dist = ncc
+                index = y
+        if index > -1:
+            union = -1
+            
+            for z in range(0, len(potential_match)):
+                #print(potential_match[z])
+                if potential_match[z] == x:
+                    union = z
+            if union > -1:
+                match = [index, x]
+                #tup = (matches, match)
+                matches.append(match)
+                #print(match)
     return matches
 
 def ncc_descriptor(image, feature_coordinates):
@@ -40,4 +71,17 @@ def ncc_descriptor(image, feature_coordinates):
             descriptors[:, :, x] = descriptor
 
     return descriptors
-#def compute_ncc(ncc_descriptor1, ncc_descriptor2, descriptor1_index, descriptor2_index):
+
+def compute_ncc(ncc_descriptor1, ncc_descriptor2, descriptor1_index, descriptor2_index):
+    normal1 = compute_normal(ncc_descriptor1, descriptor1_index)
+    normal2 = compute_normal(ncc_descriptor2, descriptor2_index)
+    ncc = np.multiply(normal1, normal2)
+    ncc = np.sum(np.sum(ncc))
+    return ncc
+
+def compute_normal(descriptor, index):
+    normal = descriptor[:, :, index]
+    U, s, V = np.linalg.svd(normal)
+    maximum = np.amax(s)
+    normal = np.divide(normal, maximum)
+    return normal

@@ -1,6 +1,6 @@
 # Author: TK
 import cv2
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 
 def compute_affine_xform(matches,features1,features2,image1,image2):
@@ -18,5 +18,5 @@ def compute_affine_xform(matches,features1,features2,image1,image2):
     """
     
     affine_xform = np.zeros((3,3))
-
+    #rows1 = 
     return affine_xform

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 def ssift_descriptor(feature_coords,image):
     """
+    DO NOT DO - not required for 461
     Computer Vision 600.461/661 Assignment 2
     Args:
         feature_coords (list of tuples): list of (row,col) tuple feature coordinates from image
