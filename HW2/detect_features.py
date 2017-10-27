@@ -1,3 +1,4 @@
+import random
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,7 +23,9 @@ def detect_features(image):
     fxx = cv2.filter2D(np.multiply(ix,ix), -1, gaussian_kernel)
     fxy = cv2.filter2D(np.multiply(ix, iy), -1, gaussian_kernel)
     fyy = cv2.filter2D(np.multiply(iy, iy), -1, gaussian_kernel)
-    cs = (np.multiply(fxx, fyy) - np.power(fxy, 2)) / (fxx + fyy + (1*10**-16))
+    cs = (np.multiply(fxx, fyy) - np.power(fxy, 2)) / (fxx + fyy + 1e-16)
     pixel_coords = nonmaxsuppts(cs, 2, 6000)
-
+    #pick detected features at random to comply with desired maximum # features
+    if len(pixel_coords) > 1000:
+        pixel_coords = random.sample(pixel_coords, 1000)
     return pixel_coords

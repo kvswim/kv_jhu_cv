@@ -44,21 +44,18 @@ def match_features(feature_coords1,feature_coords2,image1,image2):
             union = -1
             
             for z in range(0, len(potential_match)):
-                #print(potential_match[z])
                 if potential_match[z] == x:
                     union = z
             if union > -1:
                 match = [index, x]
-                #tup = (matches, match)
                 matches.append(match)
-                #print(match)
     return matches
 
 def ncc_descriptor(image, feature_coordinates):
     feature_coordinates = np.array(feature_coordinates)
     feature_coordinates = feature_coordinates.T
-    rows = feature_coordinates[0]
-    columns = feature_coordinates[1]
+    rows = feature_coordinates[:][0]
+    columns = feature_coordinates[:][1]
     grayscale = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     height, width = np.shape(grayscale)
     numfeatures = len(rows)
@@ -83,5 +80,5 @@ def compute_normal(descriptor, index):
     normal = descriptor[:, :, index]
     U, s, V = np.linalg.svd(normal)
     maximum = np.amax(s)
-    normal = np.divide(normal, maximum)
+    normal = np.divide(normal, maximum+1e-16)
     return normal

@@ -1,0 +1,16 @@
+Kyle Verdeyen
+Computer Vision EN.600.461
+HW2 README
+
+I used NCC in this assignment. 
+For feature detection: used radius 2 (window 5x5) and threshold of 6000
+For ransac: threshold is <50 in an effort to get something, anything to match.
+Features are capped at 1000, if there are more detected then we take a random sample.
+All alignments are extremely poor. Changing the threshold does little to improve detection.
+I believe this is because too many features are being detected, though I can't figure out why or how to turn it down.
+Drawing side by side is weird, even though the offset is correct some points end up in the same side. 
+Wall1 and Wall3 cannot be stitched because they are different dimensions, this will always cause a dimension error. 
+Least square solving is very likely to return a singular matrix error.
+Compute_proj_xform and ssift_descriptor are not done because this is 400 level.
+
+I meant to be able to imwrite, but I could never get it to write images. So, this is display-only. PRESS ANY KEY TO CONTINUE.
