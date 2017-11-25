@@ -17,7 +17,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 from optparse import OptionParser
 from PIL import Image
-
+import time
 #command line switches, supports -l/--load, -s/--save, -e/--epoch, -b/--batchsize, -t/--thread
 parser = OptionParser()
 parser.add_option("-l", "--load", action="store", type="string", dest="inputfile", help="Specify a pretrained model weight db to load")
@@ -94,7 +94,7 @@ class SiameseNetwork(nn.Module):
 			nn.BatchNorm2d(1024))
 	def step(self, x):
 		output = self.net(x)
-		output = output.view(-1, 16*512) #flatten layer, step 16
+		output = output.view(output.size()[0], -1 ) #flatten layer, step 16
 		output = self.vec(output)
 		return output
 	def forward(self, input1, input2):
@@ -113,7 +113,26 @@ if outputfilename is not None:
 	trainingset = MakeDataset(txt_file='train.txt', root_dir="./lfw/", transform = trans)
 	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	model = SiameseNetwork().cuda()
-	
+	optimizer = torch.optim.Adam(model.parameters())
+	#criterion = ContrastiveLoss()
+	trainloss=[]
+	for cycle in range(epoch):
+		#timestart = time.time()
+		for index, (img1, img2, weight) in enumerate(trainloader):
+			weight = weight.float()
+			#we initialized the model on the GPU but we need the variables too. potentially redundant
+			img1, img2, weight = img1.cuda(), img2.cuda(), weight.cuda() 
+			img1, img2, weight = Variable(img1, requires_grad=True), Variable(img2, requires_grad=True), Variable(weight, requires_grad=True)
+			output1, output2 = model(img1, img2)
+		#loss = criterion(output1, output2, weight)
+		#trainloss.append(loss.data[0])
+			optimizer.zero_grad()
+		#loss.backward()
+			optimizer.step()
+		#timeend = time.time()
+		#elapsed = timeend - timestart
+		#print("Epoch #{} took {}".format(cycle, elapsed))
+	torch.save(model.state_dict(), outputfilename)
 	# iteration = iter(trainloader)
 	# imagex1, imagex2, label = iteration.next()
 	# grid = torchvision.utils.make_grid(imagex1)
@@ -122,5 +141,24 @@ if outputfilename is not None:
 #indicates we want to load neural weights and run testing
 if inputfilename is not None:
 	print(inputfilename) #debug
-	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/')
+	trans = transforms.Compose([transforms.ToTensor()])
+	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
+	model = SiameseNetwork().cuda()
+	model.load_state_dict(torch.load(inputfilename))
+	model.eval()
+	everything = []
+	everything_labels = []
+	for index, (img1, img2, weight) in enumerate(testloader):
+		#x, labels = x.cuda(), labels.cuda()
+		# x = Variable(x)
+		# labels = Variable(labels)
+		# output = model.step(x)
+		img1, img2, weight = img1.cuda(), img2.cuda(), weight.cuda() 
+		img1, img2, weight = Variable(img1, requires_grad=True), Variable(img2, requires_grad=True), Variable(weight, requires_grad=True)
+		output1, output2 = model.forward(img1, img2)
+		everything.extend(output1.data.cpu().numpy().tolist())
+		everything_labels.extend(weight.data.cpu().numpy().tolist())
+	numpyall = np.array(everything)
+	numpylabels = np.array(everything_labels)
+	print numpyall, numpylabels
