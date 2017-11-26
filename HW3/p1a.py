@@ -109,7 +109,7 @@ if inputfilename is not None:
 	model = SiameseNetwork()
 	model.cuda()
 	model = model.load_state_dict(torch.load(inputfilename))
-	model.eval()
+	#model.eval()
 	print(type(model))
 	print("Now testing trained model vs training data:")
 	#model.eval()
