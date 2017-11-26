@@ -1,7 +1,7 @@
 #Kyle Verdeyen
 #Computer Vision EN.600.461 HW3
 #SiameseNetwork.py
-#siamese network class abstraction, concatenates for BCE loss
+#siamese network class abstraction, concatenates at the end for BCE loss
 import torch
 import torch.nn as nn
 class SiameseNetwork(nn.Module):

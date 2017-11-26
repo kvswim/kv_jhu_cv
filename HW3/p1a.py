@@ -93,8 +93,18 @@ if outputfilename is not None:
 	showplot(itercounter, trainloss)
 	torch.save(model.state_dict(), outputfilename)
 
-	#Now to test the model against the training set
-	print()
+
+	
+
+#indicates we want to load neural weights and run testing
+if inputfilename is not None:
+	print(inputfilename) #debug
+	trans = transforms.Compose([transforms.ToTensor()])
+	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
+	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
+	model = SiameseNetwork().cuda()
+	model.load_state_dict(torch.load(inputfilename))
+
 	print("Now testing trained model vs training data:")
 	model.eval()
 	errythang = []
@@ -109,30 +119,3 @@ if outputfilename is not None:
 	numpyweights = np.array(errythang_weights)
 	print(numpyall)
 	print(numpyweights)
-
-	
-
-#indicates we want to load neural weights and run testing
-if inputfilename is not None:
-	print(inputfilename) #debug
-	trans = transforms.Compose([transforms.ToTensor()])
-	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
-	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
-	model = SiameseNetwork().cuda()
-	model.load_state_dict(torch.load(inputfilename))
-	model.eval()
-	everything = []
-	everything_labels = []
-	for index, (img1, img2, weight) in enumerate(testloader):
-		#x, labels = x.cuda(), labels.cuda()
-		# x = Variable(x)
-		# labels = Variable(labels)
-		# output = model.step(x)
-		img1, img2, weight = img1.cuda(), img2.cuda(), weight.cuda() 
-		img1, img2, weight = Variable(img1, requires_grad=True), Variable(img2, requires_grad=True), Variable(weight, requires_grad=True)
-		output1, output2 = model.forward(img1, img2)
-		everything.extend(output1.data.cpu().numpy().tolist())
-		everything_labels.extend(weight.data.cpu().numpy().tolist())
-	numpyall = np.array(everything)
-	numpylabels = np.array(everything_labels)
-	print numpyall, numpylabels
