@@ -111,7 +111,7 @@ if inputfilename is not None:
 	testmodel.cuda()
 	testmodel = testmodel.load_state_dict(torch.load(inputfilename))
 	#model.eval()
-	print(type(model))
+	print(type(testmodel))
 	print("Now testing trained model vs training data:")
 	errythang = []
 	errythang_weights = []
