@@ -79,7 +79,7 @@ if outputfilename is not None:
 			weight = Variable(weight, volatile=False).cuda()
 			optimizer.zero_grad()
 			output1= model(img1, img2)
-			weight = weight.view(8, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
+			weight = weight.view(numworkers, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
 			loss = criterion(output1, weight)
 			loss.backward()
 			optimizer.step()
@@ -114,11 +114,11 @@ if inputfilename is not None:
 	errythang_weights = []
 	for index, data in enumerate(trainloader):
 		img1, img2, weights = data
-		img1 = Variable(img1, volatile=True).cuda()
-		img2= Variable(img2, volatile=True).cuda()
+		#img1 = 
+		#img2= 
 		weights = Variable(weights, volatile=True).cuda()
-		output1 = model(img1, img2)
-		errythang.extend(output.data.cpu().numpy().tolist())
+		output1 = model(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
+		errythang.extend(output1.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy.tolist())
 	numpyall = np.array(errythang)
 	numpyweights = np.array(errythang_weights)
