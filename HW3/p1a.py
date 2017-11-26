@@ -99,7 +99,7 @@ if outputfilename is not None:
 	model.eval()
 	errythang = []
 	errythang_weights = []
-	for index, (data, weights) in enumerate(trainloader):
+	for index, data in enumerate(trainloader):
 		data = Variable(data, volatile=True).cuda()
 		weights = Variable(weights).cuda()
 		output = model.forward_once(data)

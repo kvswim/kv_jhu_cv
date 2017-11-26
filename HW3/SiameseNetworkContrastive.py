@@ -1,10 +1,10 @@
 #Kyle Verdeyen
 #Computer Vision EN.600.461 HW3
-#SiameseNetwork.py
-#siamese network class abstraction, concatenates for BCE loss
+#SiameseNetworkContrastive.py
+#siamese network class abstraction, without concat for BCE (used for p1b/contrastive)
 import torch
 import torch.nn as nn
-class SiameseNetwork(nn.Module):
+class SiameseNetworkContrastive(nn.Module):
 	def __init__(self):
 		super(SiameseNetwork, self).__init__()
 		#steps 1-15
@@ -32,9 +32,6 @@ class SiameseNetwork(nn.Module):
 			nn.ReLU(inplace=True),
 			nn.BatchNorm2d(1024))
 
-		self.flat = nn.Sequential(
-			nn.Linear(2*1024, 1)
-			)
 
 	def forward_once(self, x):
 		output = self.net(x)
@@ -45,8 +42,4 @@ class SiameseNetwork(nn.Module):
 	def forward(self, input1, input2):
 		output1 = self.forward_once(input1)
 		output2 = self.forward_once(input2)
-		combined = torch.cat((output1, output2), 1)
-		combined = self.flat(combined)
-		s = nn.Sigmoid()
-		combined = s(combined)
-		return combined
+		return output1, output2
