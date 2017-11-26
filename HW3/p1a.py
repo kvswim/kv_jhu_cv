@@ -107,7 +107,7 @@ if inputfilename is not None:
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
 	model = SiameseNetwork().cuda()
 	model.eval()
-	model = SiameseNetwork.load_state_dict(torch.load(inputfilename))
+	model = model.load_state_dict(torch.load(inputfilename))
 	print("Now testing trained model vs training data:")
 	#model.eval()
 	errythang = []
