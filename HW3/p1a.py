@@ -100,6 +100,8 @@ if outputfilename is not None:
 if inputfilename is not None:
 	print(inputfilename) #debug
 	trans = transforms.Compose([transforms.ToTensor()])
+	trainingset = MakeDataset(txt_file='train.txt', root_dir="./lfw/", transform = trans)
+	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
 	model = SiameseNetwork().cuda()
