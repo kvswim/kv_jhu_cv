@@ -80,7 +80,7 @@ if outputfilename is not None:
 			weight = Variable(weight, volatile=False).cuda()
 			optimizer.zero_grad()
 			output1= model(img1, img2)
-			weight = weight.view(numworkers, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
+			weight = weight.view(batchsize, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
 			loss = criterion(output1, weight)
 			loss.backward()
 			optimizer.step()
@@ -91,7 +91,7 @@ if outputfilename is not None:
 				trainloss.append(loss.data[0])
 
 
-	model = model.cpu() #unload from gpu so we can save accurately
+	#model = model.cpu() #unload from gpu so we can save accurately
 	showplot(itercounter, trainloss)
 	torch.save(model.state_dict(), outputfilename)
 
