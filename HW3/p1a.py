@@ -10,6 +10,8 @@ import torchvision
 import time
 import torchvision.transforms as transforms
 import torch.optim as optim
+import matplotlib
+matplotlib.use('Agg') #disable this if you are running locally 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.nn as nn
@@ -68,7 +70,6 @@ if outputfilename is not None:
 	trainloss=[]
 	iteration=0
 	for cycle in range(epoch):
-		#timestart = time.time()
 		for index, data in enumerate(trainloader):
 			img1, img2, weight = data
 			#we initialized the model on the GPU but we need the variables too. potentially redundant
@@ -77,9 +78,7 @@ if outputfilename is not None:
 			weight = Variable(weight, volatile=False).cuda()
 			output1= model(img1, img2)
 			optimizer.zero_grad()
-			
 			weight = weight.view(8, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
-			# output1 = output1.type(torch.FloatTensor)
 			loss = criterion(output1, weight)
 			loss.backward()
 			optimizer.step()
