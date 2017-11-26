@@ -52,7 +52,8 @@ def imshow(img):
 	plt.show()
 def showplot(iteration, loss):
 	plt.plot(iteration, loss)
-	plt.show()
+	plt.savefig('LossP1Atrain.png')
+	plt.close()
 
 #P1A
 #indicates we want to train a network and save it
@@ -77,12 +78,12 @@ if outputfilename is not None:
 			output1= model(img1, img2)
 			optimizer.zero_grad()
 			
-			weight = weight.view(8, -1).type(torch.FloatTensor).cuda()
+			weight = weight.view(8, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
 			# output1 = output1.type(torch.FloatTensor)
 			loss = criterion(output1, weight)
 			loss.backward()
 			optimizer.step()
-			if index % 10 == 0:
+			if index % 10 == 0: #check every 10th run per epoch 
 				print("Epoch {}: Current loss: {}".format(cycle, loss.data[0]))
 				iteration += 10
 				itercounter.append(iteration)
