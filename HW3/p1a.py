@@ -2,7 +2,7 @@
 #Computer Vision EN.600.461 HW3
 #p1a.py
 #Performs BCE (binary entropy classification) using a siamese network.
-#Operation requires 4GB+ VRAM and a NVIDIA CUDA-enabled GPU. 
+#Operation requires >4GB VRAM and a NVIDIA CUDA-enabled GPU. 6GB or higher recommended. 
 #Assumes images are in ./lfw and train.txt + test.txt are in the same root directory as pyscripts
 import cv2
 import torch
@@ -79,16 +79,14 @@ if outputfilename is not None:
 			
 			weight = weight.view(8, -1).type(torch.FloatTensor).cuda()
 			# output1 = output1.type(torch.FloatTensor)
-			print(weight)
-			print(output1)
 			loss = criterion(output1, weight)
 			loss.backward()
 			optimizer.step()
-			# if index % 10 == 0:
-			# 	print("Epoch {}: Current loss: {}".format(cycle, loss.data[0]))
-			# 	iteration += 10
-			# 	itercounter.append(iteration)
-			# 	trainloss.append(loss.data[0])
+			if index % 10 == 0:
+				print("Epoch {}: Current loss: {}".format(cycle, loss.data[0]))
+				iteration += 10
+				itercounter.append(iteration)
+				trainloss.append(loss.data[0])
 
 
 	model = model.cpu() #unload from gpu so we can save accurately
