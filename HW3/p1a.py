@@ -78,12 +78,13 @@ if outputfilename is not None:
 			img1 = Variable(img1, volatile=False).cuda()
 			img2= Variable(img2, volatile=False).cuda()
 			weight = Variable(weight, volatile=False).cuda()
-			optimizer.zero_grad()
+
 			output1= model(img1, img2)
 			weight = weight.view(batchsize, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
 			loss = criterion(output1, weight)
 			loss.backward()
 			optimizer.step()
+			optimizer.zero_grad()
 			if index % 10 == 0: #check every 10th run per epoch 
 				print("Epoch {}: Current loss: {}".format(cycle, loss.data[0]))
 				iteration += 10
@@ -91,7 +92,7 @@ if outputfilename is not None:
 				trainloss.append(loss.data[0])
 
 
-	#model = model.cpu() #unload from gpu so we can save accurately
+	model = model.cpu() #unload from gpu so we can save accurately
 	showplot(itercounter, trainloss)
 	torch.save(model.state_dict(), outputfilename)
 
