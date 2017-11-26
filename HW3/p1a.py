@@ -105,7 +105,7 @@ if inputfilename is not None:
 	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
-	model = SiameseNetwork()
+	model = SiameseNetwork().cuda()
 	model = model.load_state_dict(torch.load(inputfilename))
 	#model = model.cuda()
 	print("Now testing trained model vs training data:")
