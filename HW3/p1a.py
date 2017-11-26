@@ -64,6 +64,7 @@ if outputfilename is not None:
 	trainingset = MakeDataset(txt_file='train.txt', root_dir="./lfw/", transform = trans)
 	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	model = SiameseNetwork().cuda()
+	#model = model.train()
 	criterion = nn.BCELoss().cuda()
 	optimizer = optim.Adam(model.parameters(), lr=learnrate)
 	itercounter=[]
@@ -76,8 +77,8 @@ if outputfilename is not None:
 			img1 = Variable(img1, volatile=False).cuda()
 			img2= Variable(img2, volatile=False).cuda()
 			weight = Variable(weight, volatile=False).cuda()
-			output1= model(img1, img2)
 			optimizer.zero_grad()
+			output1= model(img1, img2)
 			weight = weight.view(8, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
 			loss = criterion(output1, weight)
 			loss.backward()
@@ -104,17 +105,19 @@ if inputfilename is not None:
 	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
-	model = SiameseNetwork().cuda()
-	model.load_state_dict(torch.load(inputfilename))
-
+	model = SiameseNetwork()
+	model = model.load_state_dict(torch.load(inputfilename))
+	#model = model.cuda()
 	print("Now testing trained model vs training data:")
-	model.eval()
+	#model.eval()
 	errythang = []
 	errythang_weights = []
 	for index, data in enumerate(trainloader):
-		data = Variable(data, volatile=True).cuda()
-		weights = Variable(weights).cuda()
-		output = model.forward_once(data)
+		img1, img2, weight = data
+		img1 = Variable(img1, volatile=True).cuda()
+		img2= Variable(img2, volatile=True).cuda()
+		weights = Variable(weights, volatile=True).cuda()
+		output1 = model.forward((img1, img2))
 		errythang.extend(output.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy.tolist())
 	numpyall = np.array(errythang)
