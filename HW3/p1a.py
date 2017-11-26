@@ -92,7 +92,7 @@ if outputfilename is not None:
 				trainloss.append(loss.data[0])
 
 
-	model = model.cpu() #unload from gpu so we can save accurately
+	#model = model.cpu() #unload from gpu so we can save accurately
 	showplot(itercounter, trainloss)
 	torch.save(model.state_dict(), outputfilename)
 
@@ -107,13 +107,12 @@ if inputfilename is not None:
 	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
-	model = SiameseNetwork()
-	model.cuda()
-	model = model.load_state_dict(torch.load(inputfilename))
+	testmodel = SiameseNetwork()
+	testmodel.cuda()
+	testmodel = testmodel.load_state_dict(torch.load(inputfilename))
 	#model.eval()
 	print(type(model))
 	print("Now testing trained model vs training data:")
-	#model.eval()
 	errythang = []
 	errythang_weights = []
 	for index, data in enumerate(trainloader):
@@ -121,7 +120,7 @@ if inputfilename is not None:
 		#img1 = 
 		#img2= 
 		weights = Variable(weights, volatile=True).cuda()
-		output1 = model.forward((Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda()))
+		output1 = testmodel.forward((Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda()))
 		errythang.extend(output1.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy.tolist())
 	numpyall = np.array(errythang)
