@@ -92,10 +92,25 @@ if outputfilename is not None:
 	model = model.cpu() #unload from gpu so we can save accurately
 	showplot(itercounter, trainloss)
 	torch.save(model.state_dict(), outputfilename)
-	# iteration = iter(trainloader)
-	# imagex1, imagex2, label = iteration.next()
-	# grid = torchvision.utils.make_grid(imagex1)
-	# imshow(grid)
+
+	#Now to test the model against the training set
+	print()
+	print("Now testing trained model vs training data:")
+	model.eval()
+	errythang = []
+	errythang_weights = []
+	for index, (data, weights) in enumerate(trainloader):
+		data = Variable(data, volatile=True).cuda()
+		weights = Variable(weights).cuda()
+		output = model.forward_once(data)
+		errythang.extend(output.data.cpu().numpy().tolist())
+		errythang_weights.extend(weights.data.cpu().numpy.tolist())
+	numpyall = np.array(errythang)
+	numpyweights = np.array(errythang_weights)
+	print(numpyall)
+	print(numpyweights)
+
+	
 
 #indicates we want to load neural weights and run testing
 if inputfilename is not None:
