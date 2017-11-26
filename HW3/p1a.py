@@ -113,11 +113,11 @@ if inputfilename is not None:
 	errythang = []
 	errythang_weights = []
 	for index, data in enumerate(trainloader):
-		img1, img2, weight = data
+		img1, img2, weights = data
 		img1 = Variable(img1, volatile=True).cuda()
 		img2= Variable(img2, volatile=True).cuda()
 		weights = Variable(weights, volatile=True).cuda()
-		output1 = model.forward((img1, img2))
+		output1 = model(img1, img2)
 		errythang.extend(output.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy.tolist())
 	numpyall = np.array(errythang)
