@@ -101,17 +101,17 @@ if outputfilename is not None:
 
 #indicates we want to load neural weights and run testing
 if inputfilename is not None:
-	print(inputfilename) #debug
+	print("Loading test and train data...") #debug
 	trans = transforms.Compose([transforms.ToTensor()])
 	trainingset = MakeDataset(txt_file='train.txt', root_dir="./lfw/", transform = trans)
 	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
+	print("Loading pretrained model from " +inputfilename)
 	testmodel = SiameseNetwork()
 	testmodel.load_state_dict(torch.load(inputfilename))
 	testmodel.cuda()
 	#model.eval()
-	print(type(testmodel))
 	print("Now testing trained model vs training data:")
 	errythang = []
 	errythang_weights = []
@@ -125,5 +125,5 @@ if inputfilename is not None:
 		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
 	numpyweights = np.array(errythang_weights)
-	print(numpyall)
-	print(numpyweights)
+	print(numpyall.shape)
+	print(numpyweights.shape)
