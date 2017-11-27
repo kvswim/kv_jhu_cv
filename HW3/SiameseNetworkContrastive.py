@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 class SiameseNetworkContrastive(nn.Module):
 	def __init__(self):
-		super(SiameseNetwork, self).__init__()
+		super(SiameseNetworkContrastive, self).__init__()
 		#steps 1-15
 
 		self.net = nn.Sequential(
