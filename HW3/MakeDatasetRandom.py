@@ -31,9 +31,7 @@ class MakeDatasetRandom(Dataset):
 	def __getitem__(self,idx):
 		image1 = Image.open(self.inputimages1[idx])
 		image2 = Image.open(self.inputimages2[idx])
-		image1 = image1.convert('RGB')
-		image2 = image2.convert('RGB')
-
+		
 		weight = self.weights[idx]
 		if random.randint(1,11) <= 7: #70% probability of a random transformation
 			#Can apply mirror flipping, rotation -/+ 30 degrees, translation -/+ 10 px, scaling 0.7-1.3 or any combination thereof
@@ -220,6 +218,8 @@ class MakeDatasetRandom(Dataset):
 				# image1 = image1.putdata(image1, scale = factor)
 				# image2 = image2.putdata(image2, scale = factor)
 		#time to rescale
+		image1 = image1.convert('RGB')
+		image2 = image2.convert('RGB')
 		image1 = image1.resize((128, 128), Image.ANTIALIAS)
 		image2 = image1.resize((128, 128), Image.ANTIALIAS)
 		if self.transform is not None:
