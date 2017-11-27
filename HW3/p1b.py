@@ -124,7 +124,7 @@ if inputfilename is not None:
 		output1, output2 = testmodel.forward(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
 		euc_dist = F.pairwise_distance(output1, output2)
 		print(type(euc_dist))
-		errythang.extend(output1.data.cpu().numpy().tolist())
+		errythang.extend(euc_dist.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
 	numpyweights = np.array(errythang_weights)
@@ -160,8 +160,8 @@ if inputfilename is not None:
 		img1, img2, weights = data
 		weights = Variable(weights, volatile=True).cuda()
 		output1, output2 = testmodel.forward(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
-		
-		errythang.extend(output1.data.cpu().numpy().tolist())
+		euc_dist = F.pairwise_distance(output1, output2)
+		errythang.extend(euc_dist.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
 	numpyweights = np.array(errythang_weights)
