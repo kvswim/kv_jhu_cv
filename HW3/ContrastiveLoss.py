@@ -13,5 +13,5 @@ class ContrastiveLoss(nn.Module):
 
 	def forward(self, output1, output2, weight):
 		pairdist = F.pairwise_distance(output1, output2)
-		contrastive_loss = torch.mean((1-weight)*torch.pow(pairdist, 2) + (weight) * torch.pow(torch.clamp(self.margin - pairdist, min = 0.0), 2))
+		contrastive_loss = torch.mean((weight)*torch.pow(pairdist, 2) + (1-weight) * torch.pow(torch.clamp(self.margin - pairdist, min = 0.0), 2))
 		return contrastive_loss
