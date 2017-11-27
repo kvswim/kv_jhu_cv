@@ -16,14 +16,14 @@ def randomize(image1, image2):
 		#couldve done this with methods but I remebered that halfway through so it's staying like this
 		selector = random.randint(1,16)
 		#0000 nothing doing
-		if selector == 0:
-			return
-		#0001 scale only
-		if selector == 1:
-			# factor = random.uniform(0.7, 1.3)
-			# image1 = image1.putdata(image1, scale = factor)
-			# image2 = image2.putdata(image2, scale = factor)
-			return
+		# if selector == 0:
+		# 	return
+		# #0001 scale only
+		# if selector == 1:
+		# 	# factor = random.uniform(0.7, 1.3)
+		# 	# image1 = image1.putdata(image1, scale = factor)
+		# 	# image2 = image2.putdata(image2, scale = factor)
+		# 	return
 		#0010 translate only
 		if selector == 2:
 			x_shift = random.randint(0,11)
@@ -193,8 +193,7 @@ def randomize(image1, image2):
 			# factor = random.uniform(0.7, 1.3)
 			# image1 = image1.putdata(image1, scale = factor)
 			# image2 = image2.putdata(image2, scale = factor)
-	print(type(image1))
-	print(type(image2))
+
 	return image1, image2
 
 
