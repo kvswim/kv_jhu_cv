@@ -39,24 +39,6 @@ class MakeDatasetRandom(Dataset):
 			#Can apply mirror flipping, rotation -/+ 30 degrees, translation -/+ 10 px, scaling 0.7-1.3 or any combination thereof
 			#caveat: even after scaling image must be resized to 128*128
 			#couldve done this with methods but I remebered that halfway through so it's staying like this
-			#Mirror: PIL.ImageOps.mirror(image)
-			#Rotate: im1.rorate(degree)
-			#Translate: 
-			# 			x_shift = 2500
-					# y_shift = 1500
-					# a = 1
-					# b = 0
-					# c = x_shift #left/right (i.e. 5/-5)
-					# d = 0
-					# e = 1
-					# f = y_shift #up/down (i.e. 5/-5)
-					# translate = img.transform(img.size, Image.AFFINE, (a, b, c, d, e, f))
-					# # Calculate the size after cropping
-					# size = (translate.size[0] - x_shift, translate.size[1] - y_shift)
-					# # Crop to the desired size
-					# translate = translate.transform(size, Image.EXTENT, (0, 0, size[0], size[1]))
-					# translate.save('translated.tif')
-			#Scale: im1.putdata(source, scale=factor)
 
 			selector = random.randint(1,16)
 			#0000 nothing doing
@@ -64,9 +46,10 @@ class MakeDatasetRandom(Dataset):
 				return
 			#0001 scale only
 			if selector == 1:
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
+				return
 			#0010 translate only
 			if selector == 2:
 				x_shift = random.randint(0,11)
@@ -91,9 +74,9 @@ class MakeDatasetRandom(Dataset):
 				f = y_shift 
 				image1 = image1.transform(image1.size, Image.AFFINE, (a, b, c, d, e, f))
 				image2 = image2.transform(image2.size, Image.AFFINE, (a, b, c, d, e, f))
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
 			#0100 rotate only
 			if selector == 4:
 				rotation = int(random.uniform(-30, 30))
@@ -104,9 +87,9 @@ class MakeDatasetRandom(Dataset):
 				rotation = int(random.uniform(-30, 30))
 				image1 = image1.rotate(rotation)
 				image2 = image2.rotate(rotation)
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
 			#0110 rotate and translate
 			if selector == 6:
 				rotation = int(random.uniform(-30, 30))
@@ -137,9 +120,9 @@ class MakeDatasetRandom(Dataset):
 				f = y_shift 
 				image1 = image1.transform(image1.size, Image.AFFINE, (a, b, c, d, e, f))
 				image2 = image2.transform(image2.size, Image.AFFINE, (a, b, c, d, e, f))
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
 			#1000 mirror only
 			if selector == 8:
 				image1 = ImageOps.mirror(image1)
@@ -148,9 +131,9 @@ class MakeDatasetRandom(Dataset):
 			if selector == 9:
 				image1 = ImageOps.mirror(image1)
 				image2 = ImageOps.mirror(image2)
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
 			#1010 mirror and translate
 			if selector == 10:
 				image1 = ImageOps.mirror(image1)
@@ -179,9 +162,9 @@ class MakeDatasetRandom(Dataset):
 				f = y_shift 
 				image1 = image1.transform(image1.size, Image.AFFINE, (a, b, c, d, e, f))
 				image2 = image2.transform(image2.size, Image.AFFINE, (a, b, c, d, e, f))
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
 			#1100 mirror, rotate
 			if selector == 12:
 				image1 = ImageOps.mirror(image1)
@@ -196,9 +179,9 @@ class MakeDatasetRandom(Dataset):
 				rotation = int(random.uniform(-30, 30))
 				image1 = image1.rotate(rotation)
 				image2 = image2.rotate(rotation)
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
 			#1110 mirror, rotate, translate
 			if selector == 14: 
 				image1 = ImageOps.mirror(image1)
@@ -233,9 +216,9 @@ class MakeDatasetRandom(Dataset):
 				f = y_shift 
 				image1 = image1.transform(image1.size, Image.AFFINE, (a, b, c, d, e, f))
 				image2 = image2.transform(image2.size, Image.AFFINE, (a, b, c, d, e, f))
-				factor = random.uniform(0.7, 1.3)
-				image1 = image1.putdata(image1, scale = factor)
-				image2 = image2.putdata(image2, scale = factor)
+				# factor = random.uniform(0.7, 1.3)
+				# image1 = image1.putdata(image1, scale = factor)
+				# image2 = image2.putdata(image2, scale = factor)
 		#time to rescale
 		image1 = image1.resize((128, 128), Image.ANTIALIAS)
 		image2 = image1.resize((128, 128), Image.ANTIALIAS)
