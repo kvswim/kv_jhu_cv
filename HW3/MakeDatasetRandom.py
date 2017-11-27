@@ -226,7 +226,7 @@ class MakeDatasetRandom(Dataset):
 		image2 = Image.open(self.inputimages2[idx])
 		
 		weight = self.weights[idx]
-		# image1, image2 = randomize(image1, image2)
+		image1, image2 = randomize(image1, image2)
 		#time to rescale
 		image1 = image1.convert('RGB')
 		image2 = image2.convert('RGB')
