@@ -48,7 +48,7 @@ def imshow(img):
 	plt.show()
 def showplot(iteration, loss):
 	plt.plot(iteration, loss)
-	title = outputfilename[:-4].join("trainloss.png") #remove .pkl extension
+	title = outputfilename[:-4]+"trainloss.png" #remove .pkl extension
 	plt.savefig(title)
 	plt.close()
 
