@@ -15,6 +15,7 @@ matplotlib.use('Agg') #disable this if you are running locally
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from optparse import OptionParser
@@ -121,7 +122,8 @@ if inputfilename is not None:
 		#img2= 
 		weights = Variable(weights, volatile=True).cuda()
 		output1, output2 = testmodel.forward(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
-		print(type(output1))
+		euc_dist = F.pairwise_distance(output1, output2)
+		print(type(euc_dist))
 		errythang.extend(output1.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
@@ -157,7 +159,8 @@ if inputfilename is not None:
 	for index, data in enumerate(testloader):
 		img1, img2, weights = data
 		weights = Variable(weights, volatile=True).cuda()
-		output1 = testmodel(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
+		output1, output2 = testmodel.forward(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
+		
 		errythang.extend(output1.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
