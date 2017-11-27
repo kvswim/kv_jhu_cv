@@ -48,7 +48,8 @@ def imshow(img):
 	plt.show()
 def showplot(iteration, loss):
 	plt.plot(iteration, loss)
-	plt.savefig('LossP1Atrain.png')
+	title = outputfilename[:-4].join("trainloss.png") #remove .pkl extension
+	plt.savefig(title)
 	plt.close()
 
 #P1A
@@ -108,7 +109,7 @@ if inputfilename is not None:
 	testmodel.load_state_dict(torch.load(inputfilename))
 	testmodel.cuda()
 	#model.eval()
-	print("Now testing trained model vs training data:")
+	print("Now testing {} model vs training data:".format(inputfilename))
 	errythang = []
 	errythang_weights = []
 	for index, data in enumerate(trainloader):
@@ -134,11 +135,14 @@ if inputfilename is not None:
 	errorrate = float(count-correct)
 	errorrate = float(errorrate/count)
 	errorrate = float(errorrate*100) #have to be explicit for some reason
-	print("Error rate for unaugmented model vs trainset: {} %".format(errorrate))
+	print("Accuracy rate for model vs trainset (higher is better): {} %".format(errorrate))
+	
+
+
 	#cleanup
 	del testmodel, errythang, errythang_weights, numpyall, numpyweights, count, correct, errorrate
 
-	print("Now testing unaugmented model vs test data:")
+	print("Now testing {} model vs test data:".format(inputfilename))
 	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
 	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
 	testmodel = SiameseNetwork() #do this again just to be sure we're not getting duplicate results
@@ -148,15 +152,12 @@ if inputfilename is not None:
 	errythang_weights = []
 	for index, data in enumerate(testloader):
 		img1, img2, weights = data
-		#img1 = 
-		#img2= 
 		weights = Variable(weights, volatile=True).cuda()
 		output1 = testmodel(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
 		errythang.extend(output1.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
 	numpyweights = np.array(errythang_weights)
-	#numpyall.reshape((numpyall.shape[0], 1))
 	numpyall = numpyall[:,0]
 	count=int(numpyweights.shape[0])
 	correct = 0
@@ -169,4 +170,4 @@ if inputfilename is not None:
 	errorrate = float(count-correct)
 	errorrate = float(errorrate/count)
 	errorrate = float(errorrate*100) #have to be explicit for some reason
-	print("Error rate for unaugmented model vs testset: {} %".format(errorrate))
+	print("Accuracy rate for model vs testset (higher is better): {} %".format(errorrate))

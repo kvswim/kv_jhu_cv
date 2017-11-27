@@ -1,13 +1,17 @@
 #Kyle Verdeyen
 #Computer Vision EN.600.461 HW3
 #p1b.py
-#Performs contrastive loss using a Siamese network
+#Performs contrastive-loss comparison using a siamese network.
+#Operation requires >4GB VRAM and a NVIDIA CUDA-enabled GPU. 6GB or higher recommended. 
+#Assumes images are in ./lfw and train.txt + test.txt are in the same root directory as pyscripts
 import cv2
 import torch
 import torchvision
 import time
 import torchvision.transforms as transforms
 import torch.optim as optim
+import matplotlib
+matplotlib.use('Agg') #disable this if you are running locally 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.nn as nn
@@ -17,6 +21,8 @@ from optparse import OptionParser
 from PIL import Image
 from MakeDataset import MakeDataset
 from SiameseNetworkContrastive import SiameseNetworkContrastive
+from MakeDatasetRandom import MakeDatasetRandom
+
 
 #command line switches, run python p1a.py --help for info
 parser = OptionParser()
@@ -26,6 +32,7 @@ parser.add_option("-e", "--epoch", action="store", type="int", dest="epoch", def
 parser.add_option("-b", "--batchsize", action="store", type="int", dest="batchsize", default=8, help="Number of batches, default=8")
 parser.add_option("-t", "--thread", action="store", type="int", dest="numworkers", default=4, help="Number of workers to spawn in data collection, set this to number of threads available on CPU. Default=4 (quadcore no HT, eg i5)")
 parser.add_option("-r", "--learnrate", action="store", type="float", dest="learnrate", default=1e-3, help="Learning rate for Adam optimizer, default=1e-3")
+parser.add_option("-a", "--random", action="store_true", dest="augmentation", default=False, help="Enable or disable data augmentation, for use with training")
 (options, args) = parser.parse_args()
 inputfilename = options.inputfile
 outputfilename = options.outputfile
@@ -33,15 +40,7 @@ epoch = options.epoch
 batchsize = options.batchsize
 numworkers = options.numworkers
 learnrate = options.learnrate
-
-
-# class Combiner(nn.Module):
-# 	def __init__(self):
-# 		super(Combiner, self).__init__()
-
-# 	def forward_once(self):
-		
-# 	def forward(self)	
+augment = options.augmentation
 
 def imshow(img):
 	npimg = img.numpy()
@@ -49,17 +48,23 @@ def imshow(img):
 	plt.show()
 def showplot(iteration, loss):
 	plt.plot(iteration, loss)
-	plt.savefig('LossP1Atrain.png')
+	title = outputfilename[:-4].join("trainloss.png") #remove .pkl extension
+	plt.savefig(title)
 	plt.close()
 
-#P1A
+#P1B
 #indicates we want to train a network and save it
 if outputfilename is not None:
 	trans = transforms.Compose([transforms.ToTensor()])
-	trainingset = MakeDataset(txt_file='train.txt', root_dir="./lfw/", transform = trans)
+	if not augment:
+		trainingset = MakeDataset(txt_file='train.txt', root_dir="./lfw/", transform = trans)
+	if augment:
+		trainingset = MakeDatasetRandom(txt_file='train.txt', root_dir="./lfw/", transform = trans)
 	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
-	model = SiameseNetwork().cuda()
-	criterion = nn.BCELoss().cuda()
+	model = SiameseNetworkContrastive()
+	model.cuda()
+	#model = model.train()
+	criterion = ContrastiveLoss.cuda()
 	optimizer = optim.Adam(model.parameters(), lr=learnrate)
 	itercounter=[]
 	trainloss=[]
@@ -71,12 +76,13 @@ if outputfilename is not None:
 			img1 = Variable(img1, volatile=False).cuda()
 			img2= Variable(img2, volatile=False).cuda()
 			weight = Variable(weight, volatile=False).cuda()
-			output1= model(img1, img2)
-			optimizer.zero_grad()
-			weight = weight.view(8, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
-			loss = criterion(output1, weight)
+
+			output1, output2 = model(img1, img2)
+			weight = weight.view(batchsize, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
+			loss = criterion(output1, output2, weight)
 			loss.backward()
 			optimizer.step()
+			optimizer.zero_grad()
 			if index % 10 == 0: #check every 10th run per epoch 
 				print("Epoch {}: Current loss: {}".format(cycle, loss.data[0]))
 				iteration += 10
@@ -84,7 +90,7 @@ if outputfilename is not None:
 				trainloss.append(loss.data[0])
 
 
-	model = model.cpu() #unload from gpu so we can save accurately
+	#model = model.cpu() #unload from gpu so we can save accurately
 	showplot(itercounter, trainloss)
 	torch.save(model.state_dict(), outputfilename)
 
@@ -93,25 +99,75 @@ if outputfilename is not None:
 
 #indicates we want to load neural weights and run testing
 if inputfilename is not None:
-	print(inputfilename) #debug
+	print("Loading test and train data...") #debug
 	trans = transforms.Compose([transforms.ToTensor()])
+	trainingset = MakeDataset(txt_file='train.txt', root_dir="./lfw/", transform = trans)
+	trainloader = DataLoader(dataset=trainingset, batch_size=batchsize, num_workers=numworkers)
 	
-	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
-	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
-	model = SiameseNetwork().cuda()
-	model.load_state_dict(torch.load(inputfilename))
-
-	print("Now testing trained model vs training data:")
-	model.eval()
+	print("Loading pretrained model from " +inputfilename)
+	testmodel = SiameseNetworkContrastive()
+	testmodel.load_state_dict(torch.load(inputfilename))
+	testmodel.cuda()
+	#model.eval()
+	print("Now testing {} model vs training data:".format(inputfilename))
 	errythang = []
 	errythang_weights = []
 	for index, data in enumerate(trainloader):
-		data = Variable(data, volatile=True).cuda()
-		weights = Variable(weights).cuda()
-		output = model.forward_once(data)
-		errythang.extend(output.data.cpu().numpy().tolist())
-		errythang_weights.extend(weights.data.cpu().numpy.tolist())
+		img1, img2, weights = data
+		#img1 = 
+		#img2= 
+		weights = Variable(weights, volatile=True).cuda()
+		output1 = testmodel(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
+		errythang.extend(output1.data.cpu().numpy().tolist())
+		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
 	numpyweights = np.array(errythang_weights)
-	print(numpyall)
-	print(numpyweights)
+	#numpyall.reshape((numpyall.shape[0], 1))
+	numpyall = numpyall[:,0]
+	count=int(numpyweights.shape[0])
+	correct = 0
+	for x in range(0, numpyweights.shape[0]):
+		if numpyall[x] > 0.5 and numpyweights[x] == 1:
+			correct += 1
+			
+		elif numpyall[x] < 0.5 and numpyweights[x] == 0:
+			correct += 1
+	errorrate = float(count-correct)
+	errorrate = float(errorrate/count)
+	errorrate = float(errorrate*100) #have to be explicit for some reason
+	print("Accuracy rate for model vs trainset (higher is better): {} %".format(errorrate))
+	
+
+
+	#cleanup
+	del testmodel, errythang, errythang_weights, numpyall, numpyweights, count, correct, errorrate
+
+	print("Now testing {} model vs test data:".format(inputfilename))
+	testset = MakeDataset(txt_file='test.txt', root_dir='./lfw/', transform=trans)
+	testloader = DataLoader(dataset=testset, batch_size=batchsize, num_workers=numworkers)
+	testmodel = SiameseNetworkContrastive() #do this again just to be sure we're not getting duplicate results
+	testmodel.load_state_dict(torch.load(inputfilename))
+	testmodel.cuda()
+	errythang = []
+	errythang_weights = []
+	for index, data in enumerate(testloader):
+		img1, img2, weights = data
+		weights = Variable(weights, volatile=True).cuda()
+		output1 = testmodel(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
+		errythang.extend(output1.data.cpu().numpy().tolist())
+		errythang_weights.extend(weights.data.cpu().numpy().tolist())
+	numpyall = np.array(errythang)
+	numpyweights = np.array(errythang_weights)
+	numpyall = numpyall[:,0]
+	count=int(numpyweights.shape[0])
+	correct = 0
+	for x in range(0, numpyweights.shape[0]):
+		if numpyall[x] > 0.5 and numpyweights[x] == 1:
+			correct += 1
+			
+		elif numpyall[x] < 0.5 and numpyweights[x] == 0:
+			correct += 1
+	errorrate = float(count-correct)
+	errorrate = float(errorrate/count)
+	errorrate = float(errorrate*100) #have to be explicit for some reason
+	print("Accuracy rate for model vs testset (higher is better): {} %".format(errorrate))
