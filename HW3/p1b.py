@@ -22,6 +22,7 @@ from PIL import Image
 from MakeDataset import MakeDataset
 from SiameseNetworkContrastive import SiameseNetworkContrastive
 from MakeDatasetRandom import MakeDatasetRandom
+from ContrastiveLoss import ContrastiveLoss
 
 
 #command line switches, run python p1a.py --help for info
