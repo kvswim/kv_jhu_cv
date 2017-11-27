@@ -120,7 +120,7 @@ if inputfilename is not None:
 		#img1 = 
 		#img2= 
 		weights = Variable(weights, volatile=True).cuda()
-		output1 = testmodel(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
+		output1 = testmodel.forward_once(Variable(img1, volatile=True).cuda(), Variable(img2, volatile=True).cuda())
 		errythang.extend(output1.data.cpu().numpy().tolist())
 		errythang_weights.extend(weights.data.cpu().numpy().tolist())
 	numpyall = np.array(errythang)
