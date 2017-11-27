@@ -82,9 +82,10 @@ if outputfilename is not None:
 			output1, output2 = model(img1, img2)
 			weight = weight.view(batchsize, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
 			loss = criterion(output1, output2, weight)
+			optimizer.zero_grad()
 			loss.backward()
 			optimizer.step()
-			optimizer.zero_grad()
+
 			if index % 10 == 0: #check every 10th run per epoch 
 				print("Epoch {}: Current loss: {}".format(cycle, loss.data[0]))
 				iteration += 10
@@ -129,10 +130,10 @@ if inputfilename is not None:
 	count=int(numpyweights.shape[0])
 	correct = 0
 	for x in range(0, numpyweights.shape[0]):
-		if numpyall[x] > 0.5 and numpyweights[x] == 1:
+		if numpyall[x] < 0.5 and numpyweights[x] == 1: #contrastive loss distance is less than 0.5 considered match
 			correct += 1
 			
-		elif numpyall[x] < 0.5 and numpyweights[x] == 0:
+		elif numpyall[x] > 0.5 and numpyweights[x] == 0: #contrastive loss distance is greater than 0.5, considered nomatch
 			correct += 1
 	errorrate = float(count-correct)
 	errorrate = float(errorrate/count)
@@ -164,10 +165,10 @@ if inputfilename is not None:
 	count=int(numpyweights.shape[0])
 	correct = 0
 	for x in range(0, numpyweights.shape[0]):
-		if numpyall[x] > 0.5 and numpyweights[x] == 1:
+		if numpyall[x] < 0.5 and numpyweights[x] == 1:
 			correct += 1
 			
-		elif numpyall[x] < 0.5 and numpyweights[x] == 0:
+		elif numpyall[x] > 0.5 and numpyweights[x] == 0:
 			correct += 1
 	errorrate = float(count-correct)
 	errorrate = float(errorrate/count)

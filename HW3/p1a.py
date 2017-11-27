@@ -80,9 +80,10 @@ if outputfilename is not None:
 			output1= model(img1, img2)
 			weight = weight.view(batchsize, -1).type(torch.FloatTensor).cuda() #reformat from 8 to 8x1
 			loss = criterion(output1, weight)
+			optimizer.zero_grad()
 			loss.backward()
 			optimizer.step()
-			optimizer.zero_grad()
+
 			if index % 10 == 0: #check every 10th run per epoch 
 				print("Epoch {}: Current loss: {}".format(cycle, loss.data[0]))
 				iteration += 10
