@@ -225,4 +225,4 @@ class MakeDatasetRandom(Dataset):
 		if self.transform is not None:
 			image1 = self.transform(image1)
 			image2 = self.transform(image2)
-		return image1, image2, weight
+		return (image1, image2, weight)
