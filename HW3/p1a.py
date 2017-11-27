@@ -69,8 +69,8 @@ if outputfilename is not None:
 	trainloss=[]
 	iteration=0
 	for cycle in range(epoch):
-		for index, (img1, img2, weight) in enumerate(trainloader):
-			#img1, img2, weight = data
+		for index, data in enumerate(trainloader):
+			img1, img2, weight = data
 			#we initialized the model on the GPU but we need the variables too. potentially redundant
 			img1 = Variable(img1, volatile=False).cuda()
 			img2= Variable(img2, volatile=False).cuda()
