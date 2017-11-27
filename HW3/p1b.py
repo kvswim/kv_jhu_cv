@@ -65,7 +65,8 @@ if outputfilename is not None:
 	model = SiameseNetworkContrastive()
 	model.cuda()
 	#model = model.train()
-	criterion = ContrastiveLoss.cuda()
+	criterion = ContrastiveLoss()
+	criterion.cuda()
 	optimizer = optim.Adam(model.parameters(), lr=learnrate)
 	itercounter=[]
 	trainloss=[]
